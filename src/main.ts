@@ -11,7 +11,6 @@ declare global {
   }
 }
 
-// TODO: handle wrong password similar to not providing password
 // TODO: add close button for decrypted content
 // TODO: fix file view
 main().catch((e) => {
@@ -54,7 +53,14 @@ async function applyIfApplicable() {
 function createShowGpgFileContentButton(gpgFileUrl: string) {
   const elem = createElement(`<button class="aui-button">Decode</button>`);
   elem.addEventListener("click", async () => {
-    const decryptedContent = await decryptGpgFile(gpgFileUrl);
+    let decryptedContent;
+    try {
+      decryptedContent = await decryptGpgFile(gpgFileUrl);
+    } catch (e) {
+      alert(`Decryption failed: ${normalizeAndGetErrorMessage(e)}`);
+      console.error(e);
+      return;
+    }
     document
       .querySelector(".content-view")
       .append(
@@ -67,6 +73,14 @@ function createShowGpgFileContentButton(gpgFileUrl: string) {
     render({ newContent: decryptedContent, oldContent: "" });
   });
   return elem;
+}
+
+function normalizeAndGetErrorMessage(e: Error | any): string {
+  const msg = e.message || `${e}`;
+  if (msg === "Error decrypting message: Modification detected.") {
+    return "Wrong password!";
+  }
+  return msg;
 }
 
 function hasFileContent() {
