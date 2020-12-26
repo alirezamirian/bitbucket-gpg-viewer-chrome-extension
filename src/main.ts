@@ -3,7 +3,10 @@ import { waitForElem } from "./async-utils";
 import { createElement } from "./html-utils";
 import { decryptGpgFile, isGpgFile } from "./gpg-utils";
 
-const DOWNLOAD_BUTTON_SELECTOR = ".binary-container .download-file-button";
+const DOWNLOAD_BUTTON_SELECTOR =
+  ".binary-container .until-revision.binary .download-file-button";
+const OLD_CONTENT_DOWNLOAD_BUTTON_SELECTOR =
+  ".binary-container .since-revision.binary .download-file-button";
 
 declare global {
   interface Window {
@@ -12,6 +15,7 @@ declare global {
 }
 
 // TODO: add close button for decrypted content
+// TODO: fix diff
 // TODO: fix file view
 main().catch((e) => {
   console.warn("Something went wrong in bitbucket gpg viewer extension:", e);
@@ -45,35 +49,49 @@ async function applyIfApplicable() {
     );
 
     if (downloadBtn && isGpgFile(downloadBtn.href)) {
-      downloadBtn.after(createShowGpgFileContentButton(downloadBtn.href));
+      const button = createElement(
+        `<button class="aui-button">Decode</button>`
+      );
+      button.addEventListener("click", showDecryptedContent);
+      downloadBtn
+        .closest(".file-content")
+        .querySelector(".file-toolbar .change-type-placeholder")
+        .after(button);
     }
   }
 }
 
-function createShowGpgFileContentButton(gpgFileUrl: string) {
-  const elem = createElement(`<button class="aui-button">Decode</button>`);
-  elem.addEventListener("click", async () => {
-    let decryptedContent;
-    try {
-      decryptedContent = await decryptGpgFile(gpgFileUrl);
-    } catch (e) {
-      alert(`Decryption failed: ${normalizeAndGetErrorMessage(e)}`);
-      console.error(e);
-      return;
+const showDecryptedContent = async () => {
+  const gpgFileUrl = document.querySelector<HTMLAnchorElement>(
+    DOWNLOAD_BUTTON_SELECTOR
+  ).href;
+  const oldContentUrl = document.querySelector<HTMLAnchorElement>(
+    OLD_CONTENT_DOWNLOAD_BUTTON_SELECTOR
+  )?.href;
+
+  let decryptedContent,
+    decryptedOldContent = "";
+  try {
+    decryptedContent = await decryptGpgFile(gpgFileUrl);
+    if (oldContentUrl) {
+      decryptedOldContent = await decryptGpgFile(oldContentUrl);
     }
-    document
-      .querySelector(".content-view")
-      .append(
-        createElement(
-          `<div id="gpg-file-content" style="font-size: 0.75rem"></div>`
-        )
-      );
-    document.querySelector(".binary-container").setAttribute("hidden", "");
-    const { render } = await import("./render-diff");
-    render({ newContent: decryptedContent, oldContent: "" });
-  });
-  return elem;
-}
+  } catch (e) {
+    alert(`Decryption failed: ${normalizeAndGetErrorMessage(e)}`);
+    console.error(e);
+    return;
+  }
+  document
+    .querySelector(".content-view")
+    .append(
+      createElement(
+        `<div id="gpg-file-content" style="font-size: 0.75rem"></div>`
+      )
+    );
+  document.querySelector(".binary-container").setAttribute("hidden", "");
+  const { render } = await import("./render-diff");
+  render({ newContent: decryptedContent, oldContent: decryptedOldContent });
+};
 
 function normalizeAndGetErrorMessage(e: Error | any): string {
   const msg = e.message || `${e}`;

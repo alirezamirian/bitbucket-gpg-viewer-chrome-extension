@@ -8,7 +8,11 @@ export function isGpgFile(url: string) {
 export async function decryptGpgFile(url: string) {
   const bytes = getBinaryContent(url);
   const encryptedMessage = await message.read(bytes);
-  const password = getPassword(url);
+  // Technically, password can be different, we should use the full url (which includes commit hash)
+  // for caching password, but in practice, it's very unlikely that we will use the same password
+  // to decrypt both old and new file (by only using pathname as cache key). It can be easily
+  // changed tho in future if needed.
+  const password = getPassword(new URL(url).pathname);
   if (!password) {
     alert("Password not entered");
     throw new Error("Password not entered");
