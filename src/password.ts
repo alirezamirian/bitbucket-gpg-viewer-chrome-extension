@@ -1,12 +1,12 @@
 let passwordMap: Record<string, string> = {};
 
-export function getPassword(url): string {
-  if (passwordMap[url]) {
-    return passwordMap[url];
+export function getPassword(cacheKey): string {
+  if (passwordMap[cacheKey]) {
+    return passwordMap[cacheKey];
   }
   return prompt("Please enter the encryption password:", "");
 }
 
-export function savePassword(url: string, password: string) {
-  passwordMap[url] = password;
+export function savePassword(cacheKey: string, password: string) {
+  passwordMap[cacheKey] = password;
 }

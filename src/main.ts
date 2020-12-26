@@ -7,6 +7,8 @@ const DOWNLOAD_BUTTON_SELECTOR =
   ".binary-container .until-revision.binary .download-file-button";
 const OLD_CONTENT_DOWNLOAD_BUTTON_SELECTOR =
   ".binary-container .since-revision.binary .download-file-button";
+const DECRYPTED_CONTENT_ELEMENT_ID = "gpg-file-content";
+const TOGGLE_DECRYPTED_BUTTON_ID = "gpg-toggle-decrypted-content";
 
 declare global {
   interface Window {
@@ -14,8 +16,6 @@ declare global {
   }
 }
 
-// TODO: add close button for decrypted content
-// TODO: fix diff
 // TODO: fix file view
 main().catch((e) => {
   console.warn("Something went wrong in bitbucket gpg viewer extension:", e);
@@ -49,10 +49,10 @@ async function applyIfApplicable() {
     );
 
     if (downloadBtn && isGpgFile(downloadBtn.href)) {
-      const button = createElement(
-        `<button class="aui-button">Decode</button>`
+      const button = createElement<HTMLButtonElement>(
+        `<button class="aui-button" id="${TOGGLE_DECRYPTED_BUTTON_ID}">Decrypt</button>`
       );
-      button.addEventListener("click", showDecryptedContent);
+      button.addEventListener("click", toggleDecryptedContent);
       downloadBtn
         .closest(".file-content")
         .querySelector(".file-toolbar .change-type-placeholder")
@@ -61,6 +61,29 @@ async function applyIfApplicable() {
   }
 }
 
+const toggleDecryptedContent = async (e: Event) => {
+  const button = e.target as HTMLButtonElement;
+  let decrypted = document.getElementById(DECRYPTED_CONTENT_ELEMENT_ID);
+  button.disabled = true;
+  try {
+    if (decrypted) {
+      hideDecryptedContent();
+      button.innerText = "Decrypt";
+    } else {
+      await showDecryptedContent();
+      button.innerText = "Show original";
+    }
+  } catch (e) {
+    throw e;
+  } finally {
+    button.disabled = false;
+  }
+};
+
+const hideDecryptedContent = () => {
+  document.querySelector(".binary-container").removeAttribute("hidden");
+  document.getElementById(DECRYPTED_CONTENT_ELEMENT_ID).remove();
+};
 const showDecryptedContent = async () => {
   const gpgFileUrl = document.querySelector<HTMLAnchorElement>(
     DOWNLOAD_BUTTON_SELECTOR
@@ -79,13 +102,14 @@ const showDecryptedContent = async () => {
   } catch (e) {
     alert(`Decryption failed: ${normalizeAndGetErrorMessage(e)}`);
     console.error(e);
+    throw e;
     return;
   }
   document
     .querySelector(".content-view")
     .append(
       createElement(
-        `<div id="gpg-file-content" style="font-size: 0.75rem"></div>`
+        `<div id="${DECRYPTED_CONTENT_ELEMENT_ID}" style="font-size: 0.75rem"></div>`
       )
     );
   document.querySelector(".binary-container").setAttribute("hidden", "");

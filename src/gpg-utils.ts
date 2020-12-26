@@ -12,7 +12,8 @@ export async function decryptGpgFile(url: string) {
   // for caching password, but in practice, it's very unlikely that we will use the same password
   // to decrypt both old and new file (by only using pathname as cache key). It can be easily
   // changed tho in future if needed.
-  const password = getPassword(new URL(url).pathname);
+  let passwordCacheKey = new URL(url).pathname;
+  const password = getPassword(passwordCacheKey);
   if (!password) {
     alert("Password not entered");
     throw new Error("Password not entered");
@@ -22,7 +23,7 @@ export async function decryptGpgFile(url: string) {
     passwords: [password],
   });
   // only save password if decryption was successful
-  savePassword(url, password);
+  savePassword(passwordCacheKey, password);
   return data;
 }
 

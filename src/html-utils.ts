@@ -1,6 +1,6 @@
-export function createElement(htmlString: string) {
+export function createElement<T extends HTMLElement>(htmlString: string): T {
   const div = document.createElement("div");
   div.innerHTML = htmlString.trim();
 
-  return div.firstChild;
+  return div.firstChild as T;
 }
