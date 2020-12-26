@@ -1,4 +1,5 @@
 import { decrypt, message } from "openpgp";
+import { getPassword, savePassword } from "./password";
 
 export function isGpgFile(url: string) {
   return new URL(url).pathname.endsWith(".gpg");
@@ -7,7 +8,7 @@ export function isGpgFile(url: string) {
 export async function decryptGpgFile(url: string) {
   const bytes = getBinaryContent(url);
   const encryptedMessage = await message.read(bytes);
-  const password = prompt("Please enter the encryption password:", "");
+  const password = getPassword(url);
   if (!password) {
     alert("Password not entered");
     throw new Error("Password not entered");
@@ -16,6 +17,8 @@ export async function decryptGpgFile(url: string) {
     message: encryptedMessage,
     passwords: [password],
   });
+  // only save password if decryption was successful
+  savePassword(url, password);
   return data;
 }
 

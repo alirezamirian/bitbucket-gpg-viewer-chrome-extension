@@ -11,7 +11,6 @@ declare global {
   }
 }
 
-// TODO: keep password in a variable for reuse
 // TODO: handle wrong password similar to not providing password
 // TODO: add close button for decrypted content
 // TODO: fix file view
