@@ -11,7 +11,6 @@ declare global {
   }
 }
 
-// TODO: handle file changes in PR
 // TODO: keep password in a variable for reuse
 // TODO: handle wrong password similar to not providing password
 // TODO: add close button for decrypted content
@@ -37,6 +36,7 @@ async function main() {
     );
   }
   await applyIfApplicable();
+  window.addEventListener("hashchange", applyIfApplicable);
 }
 
 async function applyIfApplicable() {
