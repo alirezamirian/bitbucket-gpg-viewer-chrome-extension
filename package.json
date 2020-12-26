@@ -1,0 +1,33 @@
+{
+  "name": "bitbucket-gpg-viewer-chrome-extension",
+  "version": "1.0.0",
+  "description": "A chrome extension for decoding and viewing pgp encoded files (.gpg) in bitbucket/stash",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel src/main.js",
+    "build": "parcel build src/main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "browserslist": [
+    "last 1 Chrome version"
+  ],
+  "keywords": [
+    "chrome-extension",
+    "bitbucket",
+    "stash",
+    "gpg decoder",
+    "gpg viwer",
+    "pgp",
+    "gpg"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/openpgp": "4.4.14",
+    "parcel-bundler": "1.12.4",
+    "prettier": "2.2.1"
+  },
+  "dependencies": {
+    "openpgp": "4.10.9"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json.schemastore.org/chrome-manifest",
+  "manifest_version": 2,
+  "name": "Bitbucket gpg viewer",
+  "short_name": "gpg viewer",
+  "description": "A chrome extension for decoding and viewing pgp encoded files (.gpg) in bitbucket/stash",
+  "version": "1.0",
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "include_globs": [
+        "*://stash.*.*/*",
+        "*://bitbucket.*.*/*",
+        "*://*.*/stash",
+        "*://*.*/bitbucket",
+        "*://*.*.*/stash",
+        "*://*.*.*/bitbucket"
+      ],
+      "run_at": "document_idle",
+      "js": ["dist/main.js"]
+    }
+  ],
+  "permissions": [
+    "activeTab"
+  ]
+}
