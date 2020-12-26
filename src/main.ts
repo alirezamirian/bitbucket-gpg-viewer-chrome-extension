@@ -15,7 +15,6 @@ declare global {
 // TODO: handle wrong password similar to not providing password
 // TODO: add close button for decrypted content
 // TODO: fix file view
-// TODO(bonus): Check if it's possible to have diff
 main().catch((e) => {
   console.warn("Something went wrong in bitbucket gpg viewer extension:", e);
 });
@@ -57,16 +56,16 @@ function createShowGpgFileContentButton(gpgFileUrl: string) {
   const elem = createElement(`<button class="aui-button">Decode</button>`);
   elem.addEventListener("click", async () => {
     const decryptedContent = await decryptGpgFile(gpgFileUrl);
-    document.querySelector(".content-view").append(
-      createElement(`
-      <div style="position: absolute; left: 0; right: 0; top: 0; bottom: 0; padding: 10px; background: #fff">
-      <pre id="decrypted-gpg-content"></pre>
-</div>`)
-    );
-    document.querySelector(
-      "#decrypted-gpg-content"
-    ).textContent = decryptedContent;
-    console.log("content", decryptedContent);
+    document
+      .querySelector(".content-view")
+      .append(
+        createElement(
+          `<div id="gpg-file-content" style="font-size: .9em"></div>`
+        )
+      );
+    document.querySelector(".binary-container").setAttribute("hidden", "");
+    const { render } = await import("./render-diff");
+    render({ newContent: decryptedContent, oldContent: "" });
   });
   return elem;
 }

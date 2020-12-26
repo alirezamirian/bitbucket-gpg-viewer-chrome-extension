@@ -17,7 +17,8 @@
         "*://*.*.*/bitbucket"
       ],
       "run_at": "document_idle",
-      "js": ["dist/main.js"]
+      "js": ["dist/main.js"],
+      "css": ["dist/main.css"]
     }
   ],
   "permissions": [
