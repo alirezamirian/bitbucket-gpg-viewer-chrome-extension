@@ -60,7 +60,7 @@ function createShowGpgFileContentButton(gpgFileUrl: string) {
       .querySelector(".content-view")
       .append(
         createElement(
-          `<div id="gpg-file-content" style="font-size: .9em"></div>`
+          `<div id="gpg-file-content" style="font-size: 0.75rem"></div>`
         )
       );
     document.querySelector(".binary-container").setAttribute("hidden", "");
