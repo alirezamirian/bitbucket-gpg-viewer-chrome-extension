@@ -27,7 +27,11 @@ export async function decryptGpgFile(url: string) {
   return data;
 }
 
+const binaryContentCache = {};
 async function getBinaryContent(url: string) {
-  const response = await fetch(url);
-  return new Uint8Array(await response.arrayBuffer());
+  if (!binaryContentCache[url]) {
+    const response = await fetch(url);
+    binaryContentCache[url] = new Uint8Array(await response.arrayBuffer());
+  }
+  return binaryContentCache[url];
 }
