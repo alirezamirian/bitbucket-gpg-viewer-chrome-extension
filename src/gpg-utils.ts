@@ -15,7 +15,6 @@ export async function decryptGpgFile(url: string) {
   let passwordCacheKey = new URL(url).pathname;
   const password = getPassword(passwordCacheKey);
   if (!password) {
-    alert("Password not entered");
     throw new Error("Password not entered");
   }
   const { data } = await decrypt({
