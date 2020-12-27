@@ -25,7 +25,7 @@ main().catch((e) => {
 
 async function waitForFileContentToLoad() {
   await waitForElem(
-    "#commit-file-content .content-view.fully-loaded, #file-content .content-view"
+    "#commit-file-content .content-view.fully-loaded, #file-content .content-view *"
   );
 }
 
@@ -46,6 +46,7 @@ async function main() {
 
 async function applyIfApplicable() {
   if (hasFileContent()) {
+    debugger;
     await waitForFileContentToLoad();
 
     const downloadBtn: HTMLAnchorElement = document.querySelector(
