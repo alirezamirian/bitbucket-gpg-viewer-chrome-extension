@@ -41,14 +41,17 @@ async function main() {
     );
   }
   await applyIfApplicable();
-  window.addEventListener("hashchange", applyIfApplicable);
+  window.addEventListener("hashchange", () => setTimeout(applyIfApplicable));
+  window.addEventListener("popstate", () => setTimeout(applyIfApplicable));
 }
 
 async function applyIfApplicable() {
   if (hasFileContent()) {
-    debugger;
     await waitForFileContentToLoad();
 
+    if (document.getElementById(TOGGLE_DECRYPTED_BUTTON_ID)) {
+      return;
+    }
     const downloadBtn: HTMLAnchorElement = document.querySelector(
       DOWNLOAD_BUTTON_SELECTOR
     );

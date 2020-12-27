@@ -7,7 +7,7 @@
   "icons": {
     "128": "bitbucket-gpg-viewer-chrome-extension.png"
   },
-  "version": "1.0",
+  "version": "1.0.0",
   "content_scripts": [
     {
       "matches": ["*://*/*"],
