@@ -23,8 +23,5 @@
       "js": ["dist/main.js"],
       "css": ["dist/main.css"]
     }
-  ],
-  "permissions": [
-    "activeTab"
   ]
 }
