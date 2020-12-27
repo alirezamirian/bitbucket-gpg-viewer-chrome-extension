@@ -31,8 +31,7 @@ function DiffView({ newText, oldText }) {
   );
 }
 
-export function render({ newContent, oldContent }) {
-  const rootElement = document.getElementById("gpg-file-content");
+export function renderDiff({ newContent, oldContent }, rootElement) {
   ReactDOM.render(
     <DiffView newText={newContent} oldText={oldContent} />,
     rootElement

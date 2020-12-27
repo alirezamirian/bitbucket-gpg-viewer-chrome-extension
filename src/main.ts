@@ -3,10 +3,13 @@ import { waitForElem } from "./async-utils";
 import { createElement } from "./html-utils";
 import { decryptGpgFile, isGpgFile } from "./gpg-utils";
 
-const DOWNLOAD_BUTTON_SELECTOR =
+const NEW_CONTENT_DOWNLOAD_BUTTON_SELECTOR =
   ".binary-container .until-revision.binary .download-file-button";
 const OLD_CONTENT_DOWNLOAD_BUTTON_SELECTOR =
   ".binary-container .since-revision.binary .download-file-button";
+const FILE_CONTENT_DOWNLOAD_BUTTON_SELECTOR =
+  "#file-content .binary-container .download-file-button";
+const DOWNLOAD_BUTTON_SELECTOR = `${NEW_CONTENT_DOWNLOAD_BUTTON_SELECTOR},${FILE_CONTENT_DOWNLOAD_BUTTON_SELECTOR}`;
 const DECRYPTED_CONTENT_ELEMENT_ID = "gpg-file-content";
 const TOGGLE_DECRYPTED_BUTTON_ID = "gpg-toggle-decrypted-content";
 
@@ -16,13 +19,14 @@ declare global {
   }
 }
 
-// TODO: fix file view
 main().catch((e) => {
   console.warn("Something went wrong in bitbucket gpg viewer extension:", e);
 });
 
 async function waitForFileContentToLoad() {
-  await waitForElem(".content-view.fully-loaded");
+  await waitForElem(
+    "#commit-file-content .content-view.fully-loaded, #file-content .content-view"
+  );
 }
 
 function heuristicallyCheckIfBitbucket() {
@@ -55,8 +59,8 @@ async function applyIfApplicable() {
       button.addEventListener("click", toggleDecryptedContent);
       downloadBtn
         .closest(".file-content")
-        .querySelector(".file-toolbar .change-type-placeholder")
-        .after(button);
+        .querySelector(".file-toolbar .primary")
+        .append(button);
     }
   }
 }
@@ -103,19 +107,26 @@ const showDecryptedContent = async () => {
     alert(`Decryption failed: ${normalizeAndGetErrorMessage(e)}`);
     console.error(e);
     throw e;
-    return;
   }
-  document
-    .querySelector(".content-view")
-    .append(
-      createElement(
-        `<div id="${DECRYPTED_CONTENT_ELEMENT_ID}" style="font-size: 0.75rem"></div>`
-      )
-    );
+  const contentRoot = createElement(
+    `<div id="${DECRYPTED_CONTENT_ELEMENT_ID}" style="font-size: 0.75rem"></div>`
+  );
+  document.querySelector(".content-view").append(contentRoot);
   document.querySelector(".binary-container").setAttribute("hidden", "");
-  const { render } = await import("./render-diff");
-  render({ newContent: decryptedContent, oldContent: decryptedOldContent });
+  if (isInDiffMode() && decryptedContent !== decryptedOldContent) {
+    const { renderDiff } = await import("./render-diff");
+    renderDiff(
+      { newContent: decryptedContent, oldContent: decryptedOldContent },
+      contentRoot
+    );
+  } else {
+    const { renderContent } = await import("./render-content");
+    renderContent({ fileContent: decryptedContent }, contentRoot);
+  }
 };
+
+const isInDiffMode = () =>
+  Boolean(document.querySelector(NEW_CONTENT_DOWNLOAD_BUTTON_SELECTOR));
 
 function normalizeAndGetErrorMessage(e: Error | any): string {
   const msg = e.message || `${e}`;
