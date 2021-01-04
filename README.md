@@ -2,7 +2,7 @@
 A chrome extension for decoding and viewing pgp encoded files (.gpg) in bitbucket/stash.
 It adds a "Decrypt" button to .gpg files, in both diff view (e.g. in PRs or in commit view) and in file view. 
 
-**IMPORTANT**: it's not compatible to work on the latest version of bitbucket (with new atlassian UI).
+**IMPORTANT**: it's not compatible with the latest version of bitbucket (with new atlassian UI).
 
 **IMPORTANT**: It kind of heuristically detects bitbucket (aka stash) websites based on either subdomain or first path segment. So if domain name for your bitbucket server doesn't match with neither of those, then it won't work.
 
